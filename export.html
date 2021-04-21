@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<style>
+	.href-button {
+		-webkit-appearance: button;
+		-moz-appearance: button;
+		appearance: button;
+
+	}
+
+	.tvts-button {
+		background-color: #31B0D5;
+		color: white;
+		padding: 10px 20px;
+		border-radius: 5px;
+		border-color: #46b8da;
+	}
+
+	.message {
+		padding-top: 4px;
+		color: white;
+		padding-bottom: 4px;
+	}
+
+	#button {
+		position: fixed;
+		bottom: 20px;
+		right: 10px;
+	}
+</style>
+
+<script>
+	function copyToClipboard(id, displayMessage) {
+
+  /* Get the text field */
+  var copyText = document.getElementById(id);
+  var message = document.getElementById("message");
+  message.textContent = "";
+
+  /* Select the text field */
+  copyText.select();
+
+  /* Copy the text inside the text field */
+  document.execCommand("copy");            
+  message.textContent = displayMessage + " copied to clipboard";
+  message.style.color = "green"
+}
+
+function export2txt(id) {
+
+  var copyText = document.getElementById(id);
+  var message = document.getElementById("message");
+
+  message.textContent = "";
+  message.style.color = "green";
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({json}, null, 4)], {
+    type: "text/plain"
+  }));
+  a.setAttribute("download", "{filename}");
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  message.textContent = "Download complete";
+  message.style.color = "green"
+}
+
+</script>
+
+
+<head>
+	<base target="_top">
+</head>
+
+<body>
+
+	<div class="message" id="message">[]</div>
+	<textarea id='json' style='width:100%;' rows='18'>{json}</textarea>
+	<div id="button">
+		<button class="tvts-button" onclick="export2txt('json')">Download</button>
+		<button class="tvts-button" onclick="google.script.host.close()">Exit</button>
+	</div>
+
+</body>
+
+</html>

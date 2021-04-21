@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<style>
+.exit {
+  background-color : #31B0D5;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border-color: #46b8da;
+}
+
+#button {
+  position: fixed;
+  bottom: 20px;
+  right: 10px;
+}
+  }
+</style>
+
+<head>
+	<base target="_top">
+</head>
+
+<body>
+  <h2>Steps to Export Test results to a TVTS import JSON file</h1>
+	<ol type="1">
+		<li>Execute the tests and fill in the results in column G</li>
+		<li>From the TVTS menu, run the <b>Export</b> command</li>
+		<li>Place the downloaded JSON file in the TVTS root folder</li>
+		<li>The JSON file is used as input to the TVTS test "TvtsSmokeTestCases".</li>
+		<li> Run TvtsSmokeTestCases from TVTS by one of the following ways:
+			<ul>
+				<li>The TvtsSmokeTestCases test will run as part of the TVTS certification tests, or</li>
+				<li>Run TvtsSmokeTestCases standalone by executing the following command:</li>
+				<ul>
+					<li>tvts-tradefed run commandAndExit tvts-cert -m TvtsSmokeTestCases</li>
+				</ul>
+				<li>Run TvtsSmokeTestCases standalone and override JSON folder location:</li>
+				<ul>
+					<li>add option: --module-arg
+						TvtsSmokeTestCases:set-option:input-folder:"/home/tester/Downloads"</li>
+          <li>Where "/home/tester/Downloads" corresponds to the folder containing your JSON files</li>
+				</ul>
+			</ul>
+	</ol>
+	<div id="button">
+		<button class="exit" onclick="google.script.host.close()">Exit</button>
+	</div>
+</body>
+
+</html>
