@@ -3,7 +3,9 @@
 This code is a Google app script with supporting html files used with a tradefed based Host test.
 
 The Smoke Host Test Module (TvtsSmokeTestCases) takes JSON input files exported from:
-●	the Smoke Test spreadsheet using the app scripts and html code in this repro
+<ul>
+  <li>the Smoke Test spreadsheet using the app scripts and html code in this repro</li>
+</ul>
 
 
 It adds the following menu to the google sheet (TVTS menu on the far right):
