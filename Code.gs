@@ -10,17 +10,26 @@ const mTestsNamedRange = `'${mSheetName}'!tests`;
 const mTestNameHeaderNamedRange = `'${mSheetName}'!testNameHeader`;
 const mTestDescriptionHeaderNamedRange = `'${mSheetName}'!testDescriptionHeader`;
 const mTestResultHeaderNamedRange = `'${mSheetName}'!testResultHeader`;
+const mAuthor = 'jimlongja@google.com';
 
 
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
-  ui.createMenu('TVTS')
-    .addItem('Export', 'toJson')
-    .addItem('Reset Test Results', 'reset')
+  var menu = ui.createMenu('TVTS');
+
+  menu.addItem('Export', 'toJson')
+    .addToUi();
+
+  if (isAdminUser()) {
+    menu.addItem('Reset Test Results', 'reset')
     .addItem('Create Test Results', 'setResults')
-    .addSeparator()
+    .addToUi();
+  }
+
+  menu.addSeparator()
     .addItem('Help', 'help')
     .addToUi();
+
 }
 
 function help() {
@@ -29,6 +38,10 @@ function help() {
     .setWidth(640)
     .setHeight(360);
   SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Help');
+}
+
+function isAdminUser() {
+  return Session.getActiveUser().getEmail() === mAuthor;
 }
 
 function getJSONFilename() {
