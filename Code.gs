@@ -1,8 +1,3 @@
-// Constants
-const kTestNameColumn = 3;  // Column 'C'
-const kTestDescriptionColumn = 4;  // Column 'D'
-const kTestResultColumn = 7;  // Column 'G'
-
 // Globals
 const mSheet = SpreadsheetApp.getActiveSpreadsheet();
 const mTestRange = mSheet.getRangeByName('tests');
@@ -18,7 +13,7 @@ function onOpen() {
     .addSeparator()
     .addItem('Help', 'help')
     .addToUi();
-};
+}
 
 
 function help() {
@@ -73,20 +68,32 @@ function add(dictionary, key, value) {
 function reset() {
   mSheet.getRangeByName('releaseType').setValue("")
   mSheet.getRangeByName('fingerprint').setValue("<fingerprint>");
+  var testResultColumn = getColumnNumberFor('testResultHeader');
 
   for (var row = 1; row <= mTestRange.getNumRows(); row++) {
-    mTestRange.getCell(row, kTestResultColumn).setValue("");
+    mTestRange.getCell(row, testResultColumn).setValue("");
   }
 }
 
 function setResults() {
   const testDevice = "Sony/BRAVIA_UR3_UC/BRAVIA_UR3:9/PTT1.190515.001.S97/650421:user/release-keys"
-  mSheet.getRangeByName('releaseType').setValue("MR")
+  mSheet.getRangeByName('releaseType').setValue("IR")
   mSheet.getRangeByName('fingerprint').setValue(testDevice);
+  var testNameColumn = getColumnNumberFor('testNameHeader');
+  var testResultColumn = getColumnNumberFor('testResultHeader');
 
   for (var row = 1; row <= mTestRange.getNumRows(); row++) {
-    mTestRange.getCell(row, kTestResultColumn).setValue(getTestCaseResult(0.9, 0.05, 0.00));
+    var name = mTestRange.getCell(row, testNameColumn).getValue();
+    if (name == null || name == '') {
+      continue;
+    }
+    mTestRange.getCell(row, testResultColumn).setValue(getTestCaseResult(0.9, 0.05, 0.00));
   }
+}
+
+function getColumnNumberFor(header) {
+  const column = mSheet.getRangeByName(header).getColumn();
+  return column;
 }
 
 function toJson() {
@@ -104,20 +111,25 @@ function toJson() {
   var fingerprint = mSheet.getRangeByName('fingerprint').getValue();
   json["buildFingerPrint"] = fingerprint;
 
-  var range = mSheet.getRangeByName('tests');
-  var startRow = range.getRow();
-  var rows = range.getNumRows();
+  var startRow = mTestRange.getRow();
+  var rows = mTestRange.getNumRows();
   var errors = [];
 
   if (releaseType === null | releaseType === '') {
     errors.push(`Cell ${releaseTypeRange.getA1Notation()}: Invalid release type`)  
   }
 
+  var testNameColumn = getColumnNumberFor('testNameHeader');
+  var testDescriptionColumn = getColumnNumberFor('testDescriptionHeader');
+  var testResultColumn = getColumnNumberFor('testResultHeader');
+
+
   for (var row = 1; row <= rows; row++) {
     var test = {};
-    var name = range.getCell(row, kTestNameColumn).getValue();
-    var description = range.getCell(row, kTestDescriptionColumn).getValue();
-    var result = range.getCell(row, kTestResultColumn).getValue();
+
+    var name = mTestRange.getCell(row, testNameColumn).getValue();
+    var description = mTestRange.getCell(row, testDescriptionColumn).getValue();
+    var result = mTestRange.getCell(row, testResultColumn).getValue();
 
     if (name == null || name == '') {
       continue;
@@ -132,10 +144,6 @@ function toJson() {
     test['description'] = description;
     test['result'] = result;
     tests.push(test);
-
-    if (row == 3) {
-      break;
-    }
 
   }
 
@@ -159,3 +167,4 @@ function toJson() {
       .showModalDialog(output, 'Exported JSON');
 
 }
+
