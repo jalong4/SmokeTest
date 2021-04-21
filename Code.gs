@@ -1,7 +1,15 @@
 // Globals
 const mSheet = SpreadsheetApp.getActiveSpreadsheet();
 const mTestRange = mSheet.getRangeByName('tests');
-const defaultSheet = "Test plan";
+const mDefaultSheet = "Test plan";
+const mSheetName = mSheet.getSheetName();
+const mVersionNamedRange = `'${mSheetName}'!version`;
+const mFingerprintNamedRange = `'${mSheetName}'!fingerprint`;
+const mReleaseTypeNamedRange = `'${mSheetName}'!releaseType`;
+const mTestsNamedRange = `'${mSheetName}'!tests`;
+const mTestNameHeaderNamedRange = `'${mSheetName}'!testNameHeader`;
+const mTestDescriptionHeaderNamedRange = `'${mSheetName}'!testDescriptionHeader`;
+const mTestResultHeaderNamedRange = `'${mSheetName}'!testResultHeader`;
 
 
 function onOpen() {
@@ -14,7 +22,6 @@ function onOpen() {
     .addItem('Help', 'help')
     .addToUi();
 }
-
 
 function help() {
   var helpHtml = HtmlService.createTemplateFromFile('help');
@@ -31,11 +38,10 @@ function getJSONFilename() {
     add(map, "SDR Playback Test Cases", "youTubeSdrSmokeTestsResults.json");
     add(map, "HDR Playback Test Cases", "youTubeHdrSmokeTestsResults.json");
 
-    const sheetName = mSheet.getSheetName();
-    if (!map[sheetName]) {
-      return map[defaultSheet][0]
+    if (!map[mSheetName]) {
+      return map[mDefaultSheet][0]
     } else {
-      return map[sheetName][0]
+      return map[mSheetName][0]
    }
 }
 
@@ -66,9 +72,10 @@ function add(dictionary, key, value) {
 }
 
 function reset() {
-  mSheet.getRangeByName('releaseType').setValue("")
-  mSheet.getRangeByName('fingerprint').setValue("<fingerprint>");
-  var testResultColumn = getColumnNumberFor('testResultHeader');
+  const sheetName = mSheet.getSheetName();
+  mSheet.getRangeByName(mReleaseTypeNamedRange).setValue("")
+  mSheet.getRangeByName(mFingerprintNamedRange).setValue("<fingerprint>");
+  var testResultColumn = getColumnNumberFor(mTestResultHeaderNamedRange);
 
   for (var row = 1; row <= mTestRange.getNumRows(); row++) {
     mTestRange.getCell(row, testResultColumn).setValue("");
@@ -77,17 +84,17 @@ function reset() {
 
 function setResults() {
   const testDevice = "Sony/BRAVIA_UR3_UC/BRAVIA_UR3:9/PTT1.190515.001.S97/650421:user/release-keys"
-  mSheet.getRangeByName('releaseType').setValue("IR")
-  mSheet.getRangeByName('fingerprint').setValue(testDevice);
-  var testNameColumn = getColumnNumberFor('testNameHeader');
-  var testResultColumn = getColumnNumberFor('testResultHeader');
+  mSheet.getRangeByName(mReleaseTypeNamedRange).setValue("IR")
+  mSheet.getRangeByName(mFingerprintNamedRange).setValue(testDevice);
+  var testNameColumn = getColumnNumberFor(mTestNameHeaderNamedRange);
+  var testResultColumn = getColumnNumberFor(mTestResultHeaderNamedRange);
 
   for (var row = 1; row <= mTestRange.getNumRows(); row++) {
     var name = mTestRange.getCell(row, testNameColumn).getValue();
     if (name == null || name == '') {
       continue;
     }
-    mTestRange.getCell(row, testResultColumn).setValue(getTestCaseResult(0.9, 0.05, 0.00));
+    mTestRange.getCell(row, testResultColumn).setValue(getTestCaseResult(0.9, 0.02, 0.03));
   }
 }
 
@@ -101,14 +108,14 @@ function toJson() {
   var json = {}
   var tests = []
 
-  var releaseTypeRange = mSheet.getRangeByName('releaseType');
+  var releaseTypeRange = mSheet.getRangeByName(mReleaseTypeNamedRange);
   var releaseType = releaseTypeRange.getValue();
   json["releaseType"] = releaseType;
 
-  var version = mSheet.getRangeByName('version').getValue();
+  var version = mSheet.getRangeByName(mVersionNamedRange).getValue();
   json["version"] = version;
 
-  var fingerprint = mSheet.getRangeByName('fingerprint').getValue();
+  var fingerprint = mSheet.getRangeByName(mFingerprintNamedRange).getValue();
   json["buildFingerPrint"] = fingerprint;
 
   var startRow = mTestRange.getRow();
@@ -119,9 +126,9 @@ function toJson() {
     errors.push(`Cell ${releaseTypeRange.getA1Notation()}: Invalid release type`)  
   }
 
-  var testNameColumn = getColumnNumberFor('testNameHeader');
-  var testDescriptionColumn = getColumnNumberFor('testDescriptionHeader');
-  var testResultColumn = getColumnNumberFor('testResultHeader');
+  var testNameColumn = getColumnNumberFor(mTestNameHeaderNamedRange);
+  var testDescriptionColumn = getColumnNumberFor(mTestDescriptionHeaderNamedRange);
+  var testResultColumn = getColumnNumberFor(mTestResultHeaderNamedRange);
 
 
   for (var row = 1; row <= rows; row++) {
