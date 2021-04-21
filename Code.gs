@@ -10,38 +10,45 @@ const mTestsNamedRange = `'${mSheetName}'!tests`;
 const mTestNameHeaderNamedRange = `'${mSheetName}'!testNameHeader`;
 const mTestDescriptionHeaderNamedRange = `'${mSheetName}'!testDescriptionHeader`;
 const mTestResultHeaderNamedRange = `'${mSheetName}'!testResultHeader`;
+const mCurrentUser = Session.getActiveUser().getEmail();
 const mAuthor = 'jimlongja@google.com';
+const mMenu = SpreadsheetApp.getUi().createMenu('TVTS');
+const mTestDataPassPercentage = 0.93;
+const mTestDataNonApplicablePercentage = 0.03;
+const mTestDataReviewPercentage = 0.02;
 
 
 function onOpen() {
-  var ui = SpreadsheetApp.getUi();
-  var menu = ui.createMenu('TVTS');
-
-  menu.addItem('Export', 'toJson')
-    .addToUi();
-
-  if (isAdminUser()) {
-    menu.addItem('Reset Test Results', 'reset')
-    .addItem('Create Test Results', 'setResults')
-    .addToUi();
-  }
-
-  menu.addSeparator()
-    .addItem('Help', 'help')
-    .addToUi();
-
+  mMenu
+  .addItem('Export', 'toJson')
+  .addSeparator()
+  .addItem('Help', 'help')
+  .addToUi();
 }
 
 function help() {
-  var helpHtml = HtmlService.createTemplateFromFile('help');
-  var htmlOutput = HtmlService.createHtmlOutput(helpHtml.evaluate())
-    .setWidth(640)
+
+  if (isAdminUser()) {
+    mMenu
+    .addItem('Export', 'toJson')
+    .addSeparator()
+    .addItem('Reset Test Results', 'reset')
+    .addItem('Create Test Results', 'setResults')
+    .addSeparator()
+    .addItem('Help', 'help')
+    .addToUi();
+  }
+
+  var html = HtmlService.createHtmlOutputFromFile('help').getContent()
+    .replace(/{email}/g, mCurrentUser);
+  var htmlOutput = HtmlService.createHtmlOutput(html)
+    .setWidth(800)
     .setHeight(360);
   SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Help');
 }
 
 function isAdminUser() {
-  return Session.getActiveUser().getEmail() === mAuthor;
+  return  mCurrentUser === mAuthor;
 }
 
 function getJSONFilename() {
@@ -107,7 +114,8 @@ function setResults() {
     if (name == null || name == '') {
       continue;
     }
-    mTestRange.getCell(row, testResultColumn).setValue(getTestCaseResult(0.9, 0.02, 0.03));
+    mTestRange.getCell(row, testResultColumn)
+    .setValue(getTestCaseResult(mTestDataPassPercentage, mTestDataNonApplicablePercentage, mTestDataNonApplicablePercentage));
   }
 }
 
@@ -187,4 +195,3 @@ function toJson() {
       .showModalDialog(output, 'Exported JSON');
 
 }
-
